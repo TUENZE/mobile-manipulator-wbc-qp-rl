@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+
+# Editor and IDE files
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# MATLAB
+*.asv
+
+# Build and generated outputs
+build/
+dist/
+out/
+results/
+logs/
+
+# Secrets and local environment
+.env
+.env.*
+*.pem
+*.key
+
