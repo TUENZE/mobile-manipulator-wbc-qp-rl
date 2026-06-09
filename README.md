@@ -10,8 +10,8 @@ FURP research project repository for tracking weekly progress, meeting notes, so
 | Project title | Mobile Manipulator WBC QP RL |
 | Project tag | MobileManipulatorWBCQPRL |
 | Track | Research |
-| Supervising faculty | TBD |
-| Project lead | TBD |
+| Supervising faculty | Chiew-Foong Kwong|
+| Project lead | Fuhua Jia |
 | Team or individual | Individual |
 | Cited paper being replicated | TBD |
 
