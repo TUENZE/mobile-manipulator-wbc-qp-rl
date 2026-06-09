@@ -1,6 +1,6 @@
 # Project Requirements Summary
 
-This summary is based on the FURP handbook and the GitHub repository tutorial provided on 2026-06-08.
+This summary is based on the FURP handbook, the GitHub repository tutorial, and the follow-up FURP email provided on 2026-06-09.
 
 ## Certificate Requirements
 
@@ -36,6 +36,8 @@ FURP_Showcase.pdf
 
 Required repository habits:
 
+- Use only one repository for the entire project. Do not create multiple repositories, because this makes progress tracking difficult.
+- Use the official FURP template as the repository baseline.
 - Update `docs/00_weekly.md` every week with progress, challenges, and next steps.
 - Log key meeting takeaways in `docs/meeting_notes/`.
 - Keep project source code, experiments, and implementation files under `src/`.
@@ -51,6 +53,12 @@ The GitHub tutorial gives two acceptable ways for the supervisor and team member
 
 After the repository is created, send the GitHub repository URL to the supervisor.
 
+Current repository link to share:
+
+```text
+https://github.com/TUENZE/mobile-manipulator-wbc-qp-rl
+```
+
 ## Leave and Withdrawal
 
 Any leave of absence or withdrawal must be reported by email. Verbal or chat messages are not sufficient.
@@ -65,4 +73,3 @@ For withdrawal:
 
 - Email the programme formally.
 - This allows the project slot, records, and mentoring arrangements to be updated.
-

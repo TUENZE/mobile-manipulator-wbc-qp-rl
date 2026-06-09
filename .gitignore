@@ -13,6 +13,9 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+env/
+*.egg-info/
+.ipynb_checkpoints/
 
 # MATLAB
 *.asv
@@ -24,9 +27,20 @@ out/
 results/
 logs/
 
+# Data and large generated files
+*.csv
+*.tsv
+*.zip
+*.tar.gz
+*.h5
+*.ckpt
+*.pth
+data/
+!**/data/.gitkeep
+
 # Secrets and local environment
 .env
 .env.*
 *.pem
 *.key
-
+secrets.*
