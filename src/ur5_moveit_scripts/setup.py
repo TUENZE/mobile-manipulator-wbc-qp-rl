@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             "ur5_joint_goal = ur5_moveit_scripts.ur5_joint_goal:main",
             "ur5_pose_goal = ur5_moveit_scripts.ur5_pose_goal:main",
+            "ur5_go_home = ur5_moveit_scripts.ur5_go_home:main",
         ],
     },
 )
