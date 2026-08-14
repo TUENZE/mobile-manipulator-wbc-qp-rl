@@ -3,13 +3,13 @@
 import math
 from threading import Thread
 
+from pymoveit2 import MoveIt2
+from pymoveit2.robots import ur as ur_robot
+
 import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
-
-from pymoveit2 import MoveIt2
-from pymoveit2.robots import ur as ur_robot
 
 
 # ---------------------------------------------------------
@@ -40,6 +40,8 @@ TARGET_RPY = [
 
 def quaternion_from_rpy(roll: float, pitch: float, yaw: float) -> list[float]:
     """
+    Convert Roll-Pitch-Yaw Euler angles to a ROS quaternion.
+
     将 Roll-Pitch-Yaw（Euler angles）转换为 ROS / MoveIt 使用的四元数。
 
     返回顺序必须是：
@@ -66,7 +68,7 @@ def quaternion_from_rpy(roll: float, pitch: float, yaw: float) -> list[float]:
 def main(args=None):
     rclpy.init(args=args)
 
-    node = Node("ur5_pose_goal")
+    node = Node('ur5_pose_goal')
 
     # 允许 MoveIt 的 Action、joint state 等回调被多线程处理
     callback_group = ReentrantCallbackGroup()
@@ -81,7 +83,7 @@ def main(args=None):
     )
 
     # 与你在 RViz 中使用的 OMPL / RRTConnect 对应
-    moveit2.planner_id = "RRTConnectkConfigDefault"
+    moveit2.planner_id = 'RRTConnectkConfigDefault'
 
     # 初次测试时保持低速
     # 这是相对于 robot joint limits 最大值的缩放比例
@@ -110,10 +112,10 @@ def main(args=None):
         )
 
         node.get_logger().info(
-            "Sending UR5 pose goal:\n"
-            f"  position [m]  = {TARGET_POSITION}\n"
-            f"  RPY [rad]     = {TARGET_RPY}\n"
-            f"  quat [x,y,z,w]= {target_quat_xyzw}"
+            'Sending UR5 pose goal:\n'
+            f'  position [m]  = {TARGET_POSITION}\n'
+            f'  RPY [rad]     = {TARGET_RPY}\n'
+            f'  quat [x,y,z,w]= {target_quat_xyzw}'
         )
 
         # 你给的是 Cartesian pose：
@@ -137,17 +139,17 @@ def main(args=None):
         moveit2.wait_until_executed()
 
         node.get_logger().info(
-            "UR5 pose trajectory execution finished."
+            'UR5 pose trajectory execution finished.'
         )
 
     except KeyboardInterrupt:
         node.get_logger().info(
-            "Execution interrupted by user."
+            'Execution interrupted by user.'
         )
 
     except Exception as error:
         node.get_logger().error(
-            f"Pose motion failed: {error!r}"
+            f'Pose motion failed: {error!r}'
         )
 
     finally:
@@ -157,5 +159,5 @@ def main(args=None):
         executor_thread.join()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

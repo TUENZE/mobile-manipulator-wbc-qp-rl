@@ -1,0 +1,18 @@
+/**:
+  ros__parameters:
+    planner_id: ""
+    max_velocity: 0.10
+    max_acceleration: 0.10
+
+ur5_joint_goal:
+  ros__parameters:
+    joint_goal: [0.0, -1.5707963268, 1.5707963268, -1.5707963268, -1.5707963268, 0.0]
+
+ur5_go_home:
+  ros__parameters:
+    joint_goal: [0.0, -1.5707963268, 0.0, -1.5707963268, 0.0, 0.0]
+
+ur5_pose_goal:
+  ros__parameters:
+    position: [-0.45, -0.11, 0.48]
+    rpy: [3.1415926536, 0.0, 1.5707963268]

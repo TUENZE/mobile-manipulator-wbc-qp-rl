@@ -8,12 +8,12 @@ after the UR5 MoveIt simulation was started.
 
 from threading import Thread
 
+from pymoveit2 import MoveIt2
+from pymoveit2.robots import ur as ur_robot
+
 import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
-
-from pymoveit2 import MoveIt2
-from pymoveit2.robots import ur as ur_robot
 
 
 # ============================================================
@@ -43,7 +43,7 @@ def main():
     rclpy.init()
 
     # Create this ROS 2 node.
-    node = Node("ur5_go_home")
+    node = Node('ur5_go_home')
 
     # Allow MoveIt callbacks to run in parallel.
     callback_group = ReentrantCallbackGroup()
@@ -59,7 +59,7 @@ def main():
     )
 
     # Use the same planner that you used in your previous scripts.
-    moveit2.planner_id = "RRTConnectkConfigDefault"
+    moveit2.planner_id = 'RRTConnectkConfigDefault'
 
     # Spin ROS callbacks in a background thread.
     executor = rclpy.executors.MultiThreadedExecutor(2)
@@ -81,7 +81,7 @@ def main():
         moveit2.max_acceleration = 0.10
 
         node.get_logger().info(
-            "Sending UR5 to natural startup / Home configuration:"
+            'Sending UR5 to natural startup / Home configuration:'
         )
         node.get_logger().info(str(HOME_JOINTS))
 
@@ -93,16 +93,16 @@ def main():
 
         if execution_success:
             node.get_logger().info(
-                "UR5 successfully returned to the Home configuration."
+                'UR5 successfully returned to the Home configuration.'
             )
         else:
             node.get_logger().error(
-                "UR5 did not report successful Home-position execution."
+                'UR5 did not report successful Home-position execution.'
             )
 
     except KeyboardInterrupt:
         node.get_logger().warn(
-            "UR5 Home motion was stopped by the user."
+            'UR5 Home motion was stopped by the user.'
         )
 
     finally:
@@ -115,5 +115,5 @@ def main():
             rclpy.shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

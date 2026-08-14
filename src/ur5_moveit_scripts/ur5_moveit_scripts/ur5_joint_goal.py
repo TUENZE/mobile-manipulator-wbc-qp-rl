@@ -1,12 +1,12 @@
 from threading import Thread
 
+from pymoveit2 import MoveIt2
+from pymoveit2.robots import ur as ur_robot
+
 import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
-
-from pymoveit2 import MoveIt2
-from pymoveit2.robots import ur as ur_robot
 
 
 # 单位是 rad（弧度）
@@ -25,7 +25,7 @@ SAFE_JOINT_GOAL = [
 def main(args=None):
     rclpy.init(args=args)
 
-    node = Node("ur5_joint_goal")
+    node = Node('ur5_joint_goal')
     callback_group = ReentrantCallbackGroup()
 
     moveit2 = MoveIt2(
@@ -38,7 +38,7 @@ def main(args=None):
     )
 
     # 与你刚才在 RViz 中实际看到的 OMPL / RRTConnect 对应
-    moveit2.planner_id = "RRTConnectkConfigDefault"
+    moveit2.planner_id = 'RRTConnectkConfigDefault'
 
     # 设置为最大速度、最大加速度的 10%
     # 目前是 mock hardware；养成低速测试习惯
@@ -59,7 +59,7 @@ def main(args=None):
         node.create_rate(1.0).sleep()
 
         node.get_logger().info(
-            f"Sending UR5 joint goal: {SAFE_JOINT_GOAL}"
+            f'Sending UR5 joint goal: {SAFE_JOINT_GOAL}'
         )
 
         # 这一步会请求 MoveIt：
@@ -71,11 +71,11 @@ def main(args=None):
         moveit2.wait_until_executed()
 
         node.get_logger().info(
-            "UR5 trajectory execution finished."
+            'UR5 trajectory execution finished.'
         )
 
     except KeyboardInterrupt:
-        node.get_logger().info("Execution interrupted by user.")
+        node.get_logger().info('Execution interrupted by user.')
 
     finally:
         node.destroy_node()
@@ -83,5 +83,5 @@ def main(args=None):
         executor_thread.join()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
