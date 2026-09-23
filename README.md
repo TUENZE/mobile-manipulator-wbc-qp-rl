@@ -22,7 +22,8 @@ FURP research project repository for tracking weekly progress, meeting notes, so
 The first local-only UR5 simulation baseline is documented in
 [`docs/ur5_mock_simulation_v1.md`](docs/ur5_mock_simulation_v1.md). It uses
 MoveIt 2 with mock ros2_control hardware and the stock `tool0` end-effector
-frame; it does not connect to a physical robot.
+frame fitted with a kinematic parallel gripper; it does not connect to a
+physical robot.
 
 ## Repository Link
 

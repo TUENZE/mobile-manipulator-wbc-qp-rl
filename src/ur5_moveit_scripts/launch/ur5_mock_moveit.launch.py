@@ -46,7 +46,20 @@ def generate_launch_description():
             'launch_rviz': 'false',
             'initial_joint_controller': 'scaled_joint_trajectory_controller',
             'activate_joint_controller': 'true',
+            'description_file': PathJoinSubstitution(
+                [
+                    FindPackageShare('ur5_moveit_scripts'),
+                    'urdf',
+                    'ur5_parallel_gripper.urdf.xacro',
+                ]
+            ),
         }.items(),
+    )
+
+    gripper_state = Node(
+        package='ur5_moveit_scripts',
+        executable='ur5_gripper_state',
+        output='screen',
     )
 
     moveit = IncludeLaunchDescription(
@@ -105,6 +118,7 @@ def generate_launch_description():
                 description='Run one conservative mock joint trajectory after startup.',
             ),
             GroupAction(actions=[mock_control], scoped=True),
+            gripper_state,
             moveit,
             demo,
         ]

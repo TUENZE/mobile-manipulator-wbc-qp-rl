@@ -6,6 +6,8 @@ import time
 from controller_manager_msgs.srv import ListControllers
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from std_msgs.msg import Float64
 
 from ur5_moveit_scripts.motion_common import (
     BackgroundExecutor,
@@ -36,11 +38,21 @@ PICK_OBJECT_POSITION = (-0.45, -0.12, 0.36)
 PLACE_OBJECT_POSITION = (-0.45, 0.20, 0.36)
 
 PRE_PICK_POSITION = (-0.45, -0.12, 0.62)
-PICK_POSITION = (-0.45, -0.12, 0.48)
+PICK_POSITION = (-0.45, -0.12, 0.498)
 LIFT_POSITION = (-0.45, -0.12, 0.68)
 PRE_PLACE_POSITION = (-0.45, 0.20, 0.68)
-PLACE_POSITION = (-0.45, 0.20, 0.48)
+PLACE_POSITION = (-0.45, 0.20, 0.498)
 RETREAT_POSITION = (-0.45, 0.20, 0.62)
+
+GRIPPER_OPEN_POSITION = 0.065
+GRIPPER_CLOSED_POSITION = 0.045
+GRIPPER_TOUCH_LINKS = [
+    'gripper_tcp',
+    'gripper_base_link',
+    'left_gripper_finger',
+    'right_gripper_finger',
+    'tool0',
+]
 
 
 def quaternion_from_rpy(roll: float, pitch: float, yaw: float) -> list[float]:
@@ -64,6 +76,35 @@ def pause(node: Node, message: str, seconds: float = 1.0) -> None:
     """Pause between visible stages while ROS callbacks continue in the background."""
     node.get_logger().info(message)
     time.sleep(seconds)
+
+
+def create_gripper_command_publisher(node: Node):
+    """Create a latched command publisher and wait for the gripper node."""
+    command_qos = QoSProfile(
+        depth=1,
+        reliability=ReliabilityPolicy.RELIABLE,
+        durability=DurabilityPolicy.TRANSIENT_LOCAL,
+    )
+    publisher = node.create_publisher(
+        Float64,
+        '/gripper/command',
+        command_qos,
+    )
+    deadline = time.monotonic() + 5.0
+    while publisher.get_subscription_count() == 0 and time.monotonic() < deadline:
+        time.sleep(0.1)
+    if publisher.get_subscription_count() == 0:
+        raise RuntimeError('The gripper state node is not listening for commands')
+    return publisher
+
+
+def command_gripper(node: Node, publisher, position: float, label: str) -> None:
+    """Command a finger position and leave time for visible interpolation."""
+    message = Float64()
+    message.data = position
+    node.get_logger().info(f'{label}: finger position={position:.3f} m')
+    publisher.publish(message)
+    time.sleep(1.2)
 
 
 def wait_for_controller_active(
@@ -144,9 +185,18 @@ def add_scene(moveit2, node: Node) -> None:
     pause(node, 'Scene ready: table and cylinder are visible in RViz.', 2.0)
 
 
-def move_to_pose(moveit2, node: Node, label: str, position, orientation) -> None:
+def move_to_pose(
+    moveit2,
+    node: Node,
+    label: str,
+    position,
+    orientation,
+    *,
+    cartesian: bool = False,
+) -> None:
     """Plan and execute one named pose stage."""
-    node.get_logger().info(f'Stage: {label}; target={position}')
+    mode = 'Cartesian linear' if cartesian else 'OMPL joint-space'
+    node.get_logger().info(f'Stage: {label}; mode={mode}; target={position}')
     moveit2.move_to_pose(
         position=position,
         quat_xyzw=orientation,
@@ -154,7 +204,9 @@ def move_to_pose(moveit2, node: Node, label: str, position, orientation) -> None
         target_link='tool0',
         tolerance_position=0.01,
         tolerance_orientation=0.02,
-        cartesian=False,
+        cartesian=cartesian,
+        cartesian_max_step=0.005,
+        cartesian_fraction_threshold=0.999,
     )
     execute_and_report(node, moveit2, label)
     time.sleep(0.8)
@@ -172,6 +224,13 @@ def main(args=None):
         moveit2 = create_moveit_interface(node)
         background = BackgroundExecutor.start(node)
         wait_for_controller_active(node)
+        gripper_publisher = create_gripper_command_publisher(node)
+        command_gripper(
+            node,
+            gripper_publisher,
+            GRIPPER_OPEN_POSITION,
+            'Gripper open',
+        )
         time.sleep(1.0)
 
         add_scene(moveit2, node)
@@ -184,27 +243,61 @@ def main(args=None):
             PRE_PICK_POSITION,
             downward,
         )
-        move_to_pose(moveit2, node, 'descend to object', PICK_POSITION, downward)
+        move_to_pose(
+            moveit2,
+            node,
+            'descend to object',
+            PICK_POSITION,
+            downward,
+            cartesian=True,
+        )
 
-        pause(node, 'Grasp: attaching cylinder to tool0.', 1.0)
+        command_gripper(
+            node,
+            gripper_publisher,
+            GRIPPER_CLOSED_POSITION,
+            'Grasp: closing fingers onto the cylinder',
+        )
+        pause(node, 'Grasp: attaching cylinder to gripper_tcp.', 0.5)
         moveit2.attach_collision_object(
             id=OBJECT_ID,
-            link_name='tool0',
-            touch_links=['tool0', 'flange', 'wrist_3_link'],
+            link_name='gripper_tcp',
+            touch_links=GRIPPER_TOUCH_LINKS,
         )
-        time.sleep(1.5)
+        time.sleep(1.0)
 
-        move_to_pose(moveit2, node, 'lift object', LIFT_POSITION, downward)
+        move_to_pose(
+            moveit2,
+            node,
+            'lift object',
+            LIFT_POSITION,
+            downward,
+            cartesian=True,
+        )
         move_to_pose(
             moveit2,
             node,
             'transfer above place location',
             PRE_PLACE_POSITION,
             downward,
+            cartesian=True,
         )
-        move_to_pose(moveit2, node, 'lower object for placement', PLACE_POSITION, downward)
+        move_to_pose(
+            moveit2,
+            node,
+            'lower object for placement',
+            PLACE_POSITION,
+            downward,
+            cartesian=True,
+        )
 
-        pause(node, 'Release: detaching cylinder from tool0.', 1.0)
+        command_gripper(
+            node,
+            gripper_publisher,
+            GRIPPER_OPEN_POSITION,
+            'Release: opening fingers',
+        )
+        pause(node, 'Release: detaching cylinder from gripper_tcp.', 0.5)
         moveit2.detach_collision_object(OBJECT_ID)
         time.sleep(1.0)
         moveit2.add_collision_cylinder(
@@ -217,7 +310,14 @@ def main(args=None):
         )
         time.sleep(1.0)
 
-        move_to_pose(moveit2, node, 'retreat after placement', RETREAT_POSITION, downward)
+        move_to_pose(
+            moveit2,
+            node,
+            'retreat after placement',
+            RETREAT_POSITION,
+            downward,
+            cartesian=True,
+        )
         node.get_logger().info(
             'Pick-and-place completed: the cylinder is at the place location.'
         )

@@ -9,6 +9,7 @@
 - ros2_control 的 `mock_components/GenericSystem`；
 - OMPL 默认 RRTConnect 规划；
 - RViz 可视化；
+- 安装在 `tool0` 上的通用平行两指夹爪；
 - 可选的一键关节轨迹演示。
 
 这是运动学/控制接口仿真，并包含基于 MoveIt Planning Scene attach/detach 的桌面抓取可视化；不包含 Gazebo 刚体动力学、真实接触或传感器噪声。它适合先验证 ROS 计算图、MoveIt 规划和控制器执行链路。后续 WBC、QP、RL 或真实抓取实验应在这个稳定基线上分阶段增加。
@@ -27,9 +28,9 @@
 
 ## 末端执行器
 
-第一版使用 Universal Robots 官方模型和 `pymoveit2` 的默认末端工具坐标系 `tool0`。这是库存 UR5 MoveIt 配置中最兼容、最少假设的默认 TCP；当前不附加第三方夹爪几何和控制器。
+当前模型在 Universal Robots 官方 UR5 的 `tool0` 下安装了一个通用平行两指夹爪。夹爪包含掌部、两个 prismatic 手指关节、内侧防滑垫以及位于抓取中心的 `gripper_tcp`。
 
-需要物体抓取时，建议下一版单独集成 Robotiq 2F-85，并同步增加 URDF/SRDF、碰撞矩阵、夹爪 ros2_control 控制器和 MoveIt planning group。不要只改 `end_effector_name`，否则模型、碰撞与控制器会不一致。
+夹爪采用纯运动学状态节点控制：张开位置为 `0.065 m`，闭合位置为 `0.045 m`。闭合时两个黑色指垫的内表面分别位于抓取中心 `±0.035 m`，与演示圆柱的 `0.035 m` 半径一致，因此 RViz 中能看到两指贴合圆柱。UR5 六轴仍由 MoveIt 和 mock ros2_control 执行，夹爪不依赖 Gazebo。
 
 ## 构建
 
@@ -85,7 +86,11 @@ source install/setup.bash
 ros2 run ur5_moveit_scripts ur5_pick_place_demo
 ```
 
-第二条命令启动后，RViz 会显示桌面、四条桌腿和一个圆柱。UR5 将依次靠近、下降、附着圆柱、抬升、搬运、放下、释放并撤离。当前默认末端是 `tool0`，因此抓取由 MoveIt Planning Scene 的 attach/detach 表示，不包含夹爪手指开合或 Gazebo 接触动力学。
+第二条命令启动后，RViz 会显示桌面、四条桌腿和一个圆柱。UR5 将依次靠近、下降、闭合两个手指、将圆柱附着到 `gripper_tcp`、抬升、搬运、放下、张开手指、释放并撤离。
+
+轨迹模式按阶段区分：从初始状态到预抓取点使用 OMPL 关节空间规划；下降、抬升、水平搬运、下降放置和撤离使用 `5 mm` 插值步长的笛卡尔直线路径。笛卡尔路径完成比例必须达到 `99.9%`，否则节点拒绝执行，避免执行截断路径或因重新选择 IK 分支而产生不必要的关节绕行。
+
+这里的“抓住”同时包含可见的手指闭合和 MoveIt Planning Scene 的 attach/detach。它能正确显示夹爪贴合与物体跟随，但不计算接触力、摩擦、滑动或重力；这些属于后续 Gazebo/Isaac Sim 动力学阶段。
 
 ## 参数
 

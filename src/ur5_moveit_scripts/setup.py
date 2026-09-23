@@ -17,6 +17,8 @@ setup(
             glob(os.path.join('launch', '*.launch.py'))),
         (os.path.join('share', package_name, 'config'),
             glob(os.path.join('config', '*.yaml'))),
+        (os.path.join('share', package_name, 'urdf'),
+            glob(os.path.join('urdf', '*.xacro'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -36,6 +38,7 @@ setup(
             'ur5_go_home = ur5_moveit_scripts.ur5_go_home:main',
             'ur5_sim_demo = ur5_moveit_scripts.ur5_sim_demo:main',
             'ur5_pick_place_demo = ur5_moveit_scripts.ur5_pick_place_demo:main',
+            'ur5_gripper_state = ur5_moveit_scripts.ur5_gripper_state:main',
         ],
     },
 )
