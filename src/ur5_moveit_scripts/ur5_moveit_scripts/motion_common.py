@@ -12,6 +12,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
+from ur5_moveit_scripts.real_common import require_ur5_mock
+
 
 DEFAULT_PLANNER = ''
 DEFAULT_SCALING = 0.10
@@ -49,6 +51,7 @@ def _scaling_parameter(node: Node, name: str) -> float:
 
 def create_moveit_interface(node: Node) -> MoveIt2:
     """Create the official UR MoveIt interface using the default tool0 TCP."""
+    require_ur5_mock(node)
     callback_group = ReentrantCallbackGroup()
     moveit2 = MoveIt2(
         node=node,
