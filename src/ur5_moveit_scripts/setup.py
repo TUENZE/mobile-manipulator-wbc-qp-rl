@@ -24,7 +24,7 @@ setup(
     zip_safe=True,
     maintainer='tuenze',
     maintainer_email='tuenze3@gmail.com',
-    description='Simulation-only UR5 MoveIt 2 examples using mock ros2_control hardware.',
+    description='Isolated UR5 mock demos and calibrated, tool-free UR7e MoveIt planning.',
     license='Apache-2.0',
     extras_require={
         'test': [
@@ -33,6 +33,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'ur7e_pose_goal = ur5_moveit_scripts.ur7e_pose_goal:main',
+            'add_table_plane = ur5_moveit_scripts.add_table_plane:main',
             'ur5_joint_goal = ur5_moveit_scripts.ur5_joint_goal:main',
             'ur5_pose_goal = ur5_moveit_scripts.ur5_pose_goal:main',
             'ur5_go_home = ur5_moveit_scripts.ur5_go_home:main',

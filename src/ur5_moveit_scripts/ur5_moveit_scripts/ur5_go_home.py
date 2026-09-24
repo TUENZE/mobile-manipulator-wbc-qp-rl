@@ -15,6 +15,8 @@ import rclpy
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 
+from ur5_moveit_scripts.real_common import require_ur5_mock
+
 
 # ============================================================
 # UR5 natural startup / Home configuration
@@ -44,6 +46,7 @@ def main():
 
     # Create this ROS 2 node.
     node = Node('ur5_go_home')
+    require_ur5_mock(node)
 
     # Allow MoveIt callbacks to run in parallel.
     callback_group = ReentrantCallbackGroup()

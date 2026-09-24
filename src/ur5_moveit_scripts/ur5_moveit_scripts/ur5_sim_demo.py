@@ -1,16 +1,19 @@
 """Execute one conservative UR5 joint motion in the local mock simulation."""
 
+import time
+
+from controller_manager_msgs.srv import ListControllers
+from moveit_msgs.srv import GetMotionPlan
 import rclpy
 from rclpy.node import Node
 
 from ur5_moveit_scripts.motion_common import (
-    BackgroundExecutor,
     create_moveit_interface,
     declare_motion_parameters,
     execute_and_report,
     finite_float_list,
-    shutdown,
 )
+from ur5_moveit_scripts.real_common import service_call, wait_until
 
 
 DEFAULT_JOINT_GOAL = [
@@ -27,7 +30,6 @@ def main(args=None):
     """Run the parameterized, simulation-safe motion demo."""
     rclpy.init(args=args)
     node = Node('ur5_sim_demo')
-    background = None
     failure = None
 
     try:
@@ -40,11 +42,26 @@ def main(args=None):
         )
 
         moveit2 = create_moveit_interface(node)
-        background = BackgroundExecutor.start(node)
-
-        # The launch stack is normally already ready. This short delay also
-        # allows the first /joint_states sample to reach pymoveit2.
-        node.create_rate(1.0).sleep()
+        # Installed Jazzy pymoveit2 plan()/wait_until_executed() spin internally.
+        # A second executor on this same node races the ROS action wait set.
+        wait_until(node, lambda: moveit2.joint_state is not None, 15.0, 'mock joint states')
+        planner = node.create_client(GetMotionPlan, '/plan_kinematic_path')
+        try:
+            if not planner.wait_for_service(timeout_sec=60.0):
+                raise TimeoutError('Mock MoveIt planning service is unavailable')
+        finally:
+            node.destroy_client(planner)
+        deadline = time.monotonic() + 30.0
+        while True:
+            controllers = service_call(
+                node, ListControllers, '/controller_manager/list_controllers',
+                ListControllers.Request())
+            if any(c.name == 'scaled_joint_trajectory_controller' and c.state == 'active'
+                   for c in controllers.controller):
+                break
+            if time.monotonic() >= deadline:
+                raise TimeoutError('Mock trajectory controller did not become active')
+            rclpy.spin_once(node, timeout_sec=0.2)
 
         node.get_logger().info(
             'Simulation-only UR5 demo: mock hardware, end effector=tool0, '
@@ -58,12 +75,9 @@ def main(args=None):
         node.get_logger().error(f'Simulation demo failed: {error!r}')
         failure = error
     finally:
-        if background is not None:
-            shutdown(node, background)
-        else:
-            node.destroy_node()
-            if rclpy.ok():
-                rclpy.shutdown()
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
     if failure is not None:
         raise failure

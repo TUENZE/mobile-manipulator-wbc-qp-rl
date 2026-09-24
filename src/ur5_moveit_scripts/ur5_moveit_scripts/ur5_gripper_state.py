@@ -8,6 +8,8 @@ from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 
+from ur5_moveit_scripts.real_common import require_ur5_mock
+
 
 OPEN_POSITION = 0.065
 CLOSED_POSITION = 0.045
@@ -24,6 +26,7 @@ class GripperStateNode(Node):
     def __init__(self) -> None:
         """Create publishers, subscriber and the 20 Hz state timer."""
         super().__init__('ur5_gripper_state')
+        require_ur5_mock(self)
         command_qos = QoSProfile(
             depth=1,
             reliability=ReliabilityPolicy.RELIABLE,

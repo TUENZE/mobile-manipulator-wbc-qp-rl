@@ -8,6 +8,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
+from ur5_moveit_scripts.real_common import require_ur5_mock
+
 
 # 单位是 rad（弧度）
 # 顺序必须与 UR5 的六个关节顺序一致：
@@ -26,6 +28,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     node = Node('ur5_joint_goal')
+    require_ur5_mock(node)
     callback_group = ReentrantCallbackGroup()
 
     moveit2 = MoveIt2(

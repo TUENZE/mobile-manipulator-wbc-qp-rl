@@ -11,6 +11,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
+from ur5_moveit_scripts.real_common import require_ur5_mock
+
 
 # ---------------------------------------------------------
 # 目标末端位姿：相对于 UR5 的 base_link 坐标系
@@ -69,6 +71,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     node = Node('ur5_pose_goal')
+    require_ur5_mock(node)
 
     # 允许 MoveIt 的 Action、joint state 等回调被多线程处理
     callback_group = ReentrantCallbackGroup()

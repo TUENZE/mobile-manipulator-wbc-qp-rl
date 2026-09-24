@@ -3,11 +3,20 @@
 <package format="3">
   <name>ur5_moveit_scripts</name>
   <version>0.1.0</version>
-  <description>Simulation-only UR5 MoveIt 2 examples using mock ros2_control hardware.</description>
+  <description>Isolated UR5 mock demos and calibrated, tool-free UR7e MoveIt planning.</description>
   <maintainer email="tuenze3@gmail.com">tuenze</maintainer>
   <license>Apache-2.0</license>
 
   <exec_depend>launch</exec_depend>
+  <exec_depend>action_msgs</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>shape_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>ur_description</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>controller_manager_msgs</exec_depend>
   <exec_depend>pymoveit2</exec_depend>

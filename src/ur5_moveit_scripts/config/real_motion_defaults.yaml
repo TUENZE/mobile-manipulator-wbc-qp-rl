@@ -1,0 +1,24 @@
+# Table geometry intentionally matches the original src/add_table_plane.py.
+# These user-selected defaults are not a physical measurement.
+# No target position/orientation is supplied: both are required on the CLI.
+ur7e_pose_goal:
+  ros__parameters:
+    execute: false
+    velocity_scaling: 0.05
+    acceleration_scaling: 0.05
+    planning_timeout: 10.0
+    planning_attempts: 5
+    execution_timeout: 120.0
+    max_joint_excursion: 0.35  # radians, every waypoint relative to current joints
+    table_id: ur7e_work_surface
+
+add_table_plane:
+  ros__parameters:
+    frame_id: base_link
+    table_id: ur7e_work_surface
+    size_x: 4.0               # metres, inherited from the original table script
+    size_y: 4.0
+    size_z: 0.01
+    position_x: 0.0           # box CENTRE in base_link, metres
+    position_y: 0.0
+    position_z: -0.010        # box top at -0.005 m
