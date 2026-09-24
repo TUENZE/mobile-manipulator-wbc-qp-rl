@@ -49,3 +49,7 @@ data/
 *.pem
 *.key
 secrets.*
+
+# Machine-specific robot calibration: keep extracted files outside the repository.
+*calibration*.yaml
+*calibration*.yml
