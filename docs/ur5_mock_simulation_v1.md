@@ -24,7 +24,14 @@
 - `use_tool_communication=false`；
 - `headless_mode=true`。
 
-项目没有真实机器人 IP 配置，也不会启动 Dashboard、URScript 或真实 robot state helper 通信路径。
+这个 mock launch 不使用真实机器人 IP，也不会启动 Dashboard、URScript 或真实
+robot state helper 通信路径。另一个独立入口 `ur7e_real_moveit.launch.py` 用于真实
+UR7e；参见 [真实 UR7e 操作指南](ur7e_real_hardware.md)。请勿混用。
+
+每个 mock 终端在 source 后执行 `export ROS_DOMAIN_ID=42`；真实模式使用另一个
+domain（指南使用 43）。不要在同一个 domain 同时启动两个机械臂栈。
+UR5 运动和夹爪节点现在会检查 `/robot_description`，仅接受 UR5 +
+`mock_components/GenericSystem`，否则拒绝执行。
 
 ## 末端执行器
 
